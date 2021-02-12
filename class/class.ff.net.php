@@ -10,7 +10,7 @@ class FFnet extends BaseHandler
     {
         $this->setFicId($this->popFicId());
 
-        $infosSource = $this->getPageSource(1, false);
+        $infosSource = $this->getPageSource($fullurl=$this->getURL());
         $this->setTitle($this->popTitle($infosSource));
 
         $this->setAuthor($this->popAuthor($infosSource));
@@ -55,10 +55,13 @@ class FFnet extends BaseHandler
 
     }
 
-    protected function getPageSource($chapter = 1, $mobile = true) // $mobile is weither or not we use mobile version of site. (Mobile version is faster to load)
+    protected function getPageSource($fullurl=1,$chapter = 1, $mobile = true) // $mobile is weither or not we use mobile version of site. (Mobile version is faster to load)
     {
-        $url = "https://". ($mobile ? "m" : "www") .".fanfiction.net/s/". $this->getFicId() ."/". $chapter;
-
+        if ($fullurl != 1){
+            $url = $fullurl;
+        }else{
+            $url = "https://". ($mobile ? "m" : "www") .".fanfiction.net/s/". $this->getFicId() ."/". $chapter;
+        }
         /*$curl = curl_init();
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
