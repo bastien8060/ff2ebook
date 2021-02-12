@@ -44,7 +44,7 @@ class FPCOM extends BaseHandler
 
 
 
-        if (preg_match("#<div style='padding:5px 10px 5px 10px;' class='storycontent nocopy' id='storycontent' >(.+?)</div>#si", $source, $matches) === 1)
+        if (preg_match("#<div role='main' aria-label='story content' style='font-size:1.1em;'><div style='padding:5px 10px 5px 10px;' class='storycontent nocopy' id='storycontent'>(.+?)</div>#si", $source, $matches) === 1)
             $text = $matches[1];
         else
         {
@@ -56,19 +56,29 @@ class FPCOM extends BaseHandler
 
     }
 
-    protected function getPageSource($chapter = 1, $mobile = true) // $mobile is weither or not we use mobile version of site. (Mobile version is faster to load)
-    {
-        $url = "https://". ($mobile ? "m" : "www") .".fictionpress.com/s/". $this->getFicId() ."/". $chapter;
 
-        $curl = curl_init();
+    protected function getPageSource($fullurl=1,$chapter = 1, $mobile = true) // $mobile is weither or not we use mobile version of site. (Mobile version is faster to load)
+    {
+        if ($fullurl != 1){
+            $url = $fullurl;
+        }else{
+            $url = "https://". ($mobile ? "m" : "www") .".fictionpress.com/s/". $this->getFicId() ."/". $chapter;
+        }
+        /*$curl = curl_init();
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        // Page source seems gzip compressed, so we tell cURL to accept all encodings, otherwise the output is garbage (2019-06-20)
         curl_setopt($curl, CURLOPT_ENCODING, '');
         curl_setopt($curl, CURLOPT_URL, $url);
-        $source = curl_exec($curl);
-        curl_close($curl);
+        curl_setopt($curl, CURLOPT_PROXY, $proxy);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 10);*/
+        
+        $source = bypass_cf($url);
+        //$info = curl_getinfo($curl);
+        //$proxyM->updateLatency($proxy, $info['total_time'] * 1000);
 
+        //curl_close($curl);
         if ($source === false)
             $this->errorHandler()->addNew(ErrorCode::ERROR_CRITICAL, "Couldn't get source for chapter $chapter.");
 
